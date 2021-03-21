@@ -7,17 +7,29 @@ This is a project where we have to classify lung xray images - normal, infected(
 ## Exploration
 For a good visual overview of what was developed, training, model, etc., 
 you could take a look at these notebooks:  
-- 123
-- 123
+- *Multi class modelling.ipynb*
+- *Two binary class modelling.ipynb*
 
 
 ## Usage
-The saved models have been saved under 'models'.   
-To use the models for prediction and inference, you could use the functions
-in this file. For greater detail of how the functions could be used, you could take a look at this jupyter notebook () 
-where the saved models are used.  
+The models weights are saved under /models folder
+To use the models for prediction and inference, you could use the model classes created in this model.py
+For greater detail of how the functions could be used, you could take a look at this jupyter notebook (Multi class modelling.ipynb) 
+where the models are used in greater detail
 <br/>
-Here are some important usage functions:
+To get you started, here's an example of how you could use the model and reproduce the results for one of the implemented models for instance:
 ```python
-asd
+from models import AlexNet
+alexNet = load(AlexNet(3), "model/alexNet/alexNet")
+ld_val = Lung_Dataset(groups="val")
+
+validloader = DataLoader(ld_val, batch_size = 1, shuffle = True)
+acc_alexNet = evaluation(alexNet, validloader)
+print("AlexNet accuracy: ", acc_alexNet)
+
+# Display confusion matrix (optional)
+from utils import plot_confusion_matrix
+cm_alexNet = np.array(confusionMatrix(alexNet, validloader))
+plot_confusion_matrix(cm_alexNet, ["normal", "infected covid", "infected non covid"])
 ```
+For more information and detailed notebook, please look at *Multi class modelling.ipynb*
