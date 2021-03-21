@@ -7,7 +7,7 @@ import numpy as np
 
 class Lung_Dataset(Dataset):
     
-    def __init__(self, groups="train"):
+    def __init__(self, groups="train", transforms=None):
         """
         Constructor for generic Dataset class - simply assembles
         the important parameters in attributes.
@@ -23,7 +23,7 @@ class Lung_Dataset(Dataset):
         
         # The dataset consists only of validation images
         self.groups = groups
-        
+        self.transforms = transforms
         if groups == 'train':
             # Number of images in each part of the dataset
             self.dataset_numbers = {'train_normal': 1341,\
@@ -111,9 +111,9 @@ class Lung_Dataset(Dataset):
         
         # Open file as before
         path_to_file = '{}/{}.jpg'.format(self.dataset_paths['{}_{}'.format(group_val, class_val)], index_val)
-        with open(path_to_file, 'rb') as f:
-            im = np.asarray(Image.open(f))/255
-        f.close()
+#         with open(path_to_file, 'rb') as f:
+#            im = np.asarray(Image.open(f))/255
+        im = Image.open(path_to_file)
         return im
     
     
@@ -167,13 +167,19 @@ class Lung_Dataset(Dataset):
             index = index - infected_covid_index - normal_index
             label = torch.Tensor([0, 0, 1])
         im = self.open_img(self.groups, class_val, index)
-        im = transforms.functional.to_tensor(np.array(im)).float()
+
+        if self.transforms:
+            im = self.transforms(im)
+        else:
+            im = np.asarray(im)/255
+            im = transforms.functional.to_tensor(np.array(im)).float()
+
         return im, label
 
 
 class Binary_Lung_Dataset(Dataset):
     
-    def __init__(self, groups="train", classify="normal"):
+    def __init__(self, groups="train", classify="normal", transforms=None):
         """
         Constructor for Binary Dataset class - simply assembles
         the important parameters in attributes.
@@ -186,6 +192,7 @@ class Binary_Lung_Dataset(Dataset):
         self.img_size = (150, 150)
         self.groups = groups
         self.classify = classify
+        self.transforms = transforms
         # Only two classes will be considered here
         if classify == 'normal':
             self.classes = {0: 'normal', 1: 'infected'}
@@ -303,9 +310,10 @@ class Binary_Lung_Dataset(Dataset):
         
         # Open file as before
         path_to_file = '{}/{}.jpg'.format(self.dataset_paths['{}_{}'.format(group_val, class_val)], index_val)
-        with open(path_to_file, 'rb') as f:
-            im = np.asarray(Image.open(f))/255
-        f.close()
+#         with open(path_to_file, 'rb') as f:
+#             im = np.asarray(Image.open(f))/255
+#             im = Image.open(f)
+        im = Image.open(path_to_file)
         return im
     
     
@@ -369,5 +377,11 @@ class Binary_Lung_Dataset(Dataset):
                 index = index - first_index
                 label = torch.Tensor([0, 1])
         im = self.open_img(self.groups, class_val, index)
-        im = transforms.functional.to_tensor(np.array(im)).float()
+
+        if self.transforms:
+            im = self.transforms(im)
+        else:
+            im = np.asarray(im)/255
+            im = transforms.functional.to_tensor(np.array(im)).float()
+            
         return im, label
